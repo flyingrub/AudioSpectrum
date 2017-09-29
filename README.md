@@ -1,0 +1,2 @@
+# AudioSpectrum
+Javascript spectrum visualizer
