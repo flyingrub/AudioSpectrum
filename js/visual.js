@@ -41,8 +41,9 @@ function drawFFT() {
         ctx.fillRect(xPos(i), 280, 1, -audio.freq[i-1]);
     }
 
-    for (var i=3; i >= 0; i--) {
-        let freq = xMin * Math.pow(10, i);
+
+    for (var i=12; i >= 0; i--) {
+        let freq = xMin * Math.pow(10, i/4);
         drawFreqText(freq);
     }
 
