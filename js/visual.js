@@ -19,7 +19,7 @@ function drawFFT() {
     let freqBinStep = (freqMax-freqMin) / audio.bufferLength;
 
     toLog = (i) => {
-        return (freqMax * Math.log(i) / (Math.log(10) * audio.bufferLength) ) + freqMin;
+        return (freqMax * Math.log(i) / (Math.log(10) * audio.bufferLength)) + freqMin;
     }
 
     xPos = (i) => {
@@ -35,9 +35,14 @@ function drawFFT() {
         return xPos(i) * xRatio - xPos(1) * xRatio + xMin;
     }
 
-    drawFreqText = (freq) => {
+    xFromFreq = (freq) => {
         let offset = freq / freqBinStep;
-        let x = xPosWithRatio(offset -1)
+        let x = xPosWithRatio(offset -1);
+        return x;
+    }
+
+    drawFreqText = (freq) => {
+        let x = xFromFreq(freq);
         let text = Math.round(freq);
         let metrics = ctx.measureText(text);
         ctx.fillRect(x, 280, 1, 5);
@@ -48,11 +53,18 @@ function drawFFT() {
         ctx.fillRect(xPosWithRatio(i), 280, 1, -audio.freq[i-1]);
     }
 
-    let j = 0;
-    while(freqMin * Math.pow(10, j/4) < freqMax) {
-        let freq = freqMin * Math.pow(10, j/4);
-        drawFreqText(freq);
-        j++;
+    for (let i = 1; i<=4; i++) {
+        for (let j = 1; j < 10; j++) {
+            if ((i == 1 && j == 1) || (i == 1 && j == 2)) {
+                continue; // Skip the first 20hz
+            }
+            let freq = j * Math.pow(10, i);
+            let x = xFromFreq(freq);
+            ctx.fillRect(x, 280, 1, 5);
+            if (j == 1 || j == 5 || j == 2) {
+                drawFreqText(freq);
+            }
+        }
     }
 
     drawFreqText(freqMin);
