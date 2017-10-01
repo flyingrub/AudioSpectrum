@@ -1,59 +1,72 @@
+let HEIGHT = 400;
+
 function visualInit() {
-    let canvas = document.getElementById('canvas');
     canvas.width  = window.innerWidth;
-    canvas.height = 400;
+    canvas.height = HEIGHT;
     ctx = canvas.getContext('2d');
     window.requestAnimationFrame(drawFFT);
 }
 
 function drawFFT() {
-    ctx.clearRect(0, 0, window.innerWidth, 300);
-    padding = 40;
+    ctx.clearRect(0, 0, window.innerWidth, HEIGHT);
+    let margin = 40;
     ctx.fillStyle = 'black';
     ctx.font = '11px monospace';
     audio.detectBeat();
 
-    let width = audio.bufferLength;
-    let xMin = audio.sampleRate / audio.bufferLength;
-    let xMax = audio.sampleRate / 2;
-    let xRatio = xMax / xMin;
-    let xStep = (xMax-xMin) / width;
-
+    let freqMin = audio.sampleRate / audio.bufferLength;
+    let freqMax = audio.sampleRate / 2;
+    let freqBinStep = (freqMax-freqMin) / audio.bufferLength;
 
     toLog = (i) => {
-        return (xMax * Math.log(i) / (Math.log(10) * audio.bufferLength) ) + xMin;
+        return (freqMax * Math.log(i) / (Math.log(10) * audio.bufferLength) ) + freqMin;
     }
 
     xPos = (i) => {
-        return xMin * toLog(i) - xMin * toLog(1) + padding;
+        return freqMin * toLog(i) - freqMin * toLog(1);
+    }
+
+    let xMin = margin;
+    let xMax = window.innerWidth - margin;
+
+    let xRatio = (xMax - xMin) / xPos(audio.bufferLength);
+
+    xPosWithRatio = (i) => {
+        return xPos(i) * xRatio - xPos(1) * xRatio + xMin;
     }
 
     drawFreqText = (freq) => {
-        let offset = freq / xStep;
-        let x = xPos(offset -1)
+        let offset = freq / freqBinStep;
+        let x = xPosWithRatio(offset -1)
         let text = Math.round(freq);
         let metrics = ctx.measureText(text);
         ctx.fillRect(x, 280, 1, 5);
         ctx.fillText(text, x - (metrics.width / 2) , 300);
     }
 
-    for(var i = 1; i < audio.bufferLength; i++) {
-        ctx.fillRect(xPos(i), 280, 1, -audio.freq[i-1]);
+    for(let i = 1; i < audio.bufferLength; i++) {
+        ctx.fillRect(xPosWithRatio(i), 280, 1, -audio.freq[i-1]);
     }
 
-
-    for (var i=12; i >= 0; i--) {
-        let freq = xMin * Math.pow(10, i/4);
+    let j = 0;
+    while(freqMin * Math.pow(10, j/4) < freqMax) {
+        let freq = freqMin * Math.pow(10, j/4);
         drawFreqText(freq);
+        j++;
     }
 
-    drawFreqText(xMin);
+    drawFreqText(freqMin);
 
     window.requestAnimationFrame(drawFFT);
 }
 
+window.onresize = (ev) => {
+    canvas.width  = window.innerWidth;
+}
+
 var ctx;
 var audio = new Audio();
+let canvas = document.getElementById('canvas');
 var player = document.getElementById('player');
 try {
     audio.init(player);

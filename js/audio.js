@@ -11,8 +11,8 @@ class Audio {
 
         // Analyser
         this.analyser = audioContext.createAnalyser();
-        this.analyser.fftSize = 4096;
-        this.analyser.smoothingTimeConstant = 0.2;
+        this.analyser.fftSize = 8192;
+        this.analyser.smoothingTimeConstant = 0.5;
         this.analyser.maxDecibels = 0;
         this.analyser.minDecibels = -100;
         this.sampleRate = audioContext.sampleRate;
