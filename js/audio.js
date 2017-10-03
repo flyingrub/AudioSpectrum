@@ -11,12 +11,16 @@ class Audio {
 
         // Analyser
         this.analyser = this.audioContext.createAnalyser();
-        this.analyser.fftSize = 4096;
+        this.setFFTSize(4096 * 2)
         this.analyser.smoothingTimeConstant = 0.5;
         this.analyser.maxDecibels = 0;
         this.analyser.minDecibels = -100;
         this.sampleRate = this.audioContext.sampleRate;
         this.currentAudioSource.connect(this.analyser);
+    }
+
+    setFFTSize(size) {
+        this.analyser.fftSize = size;
         this.bufferLength = this.analyser.frequencyBinCount;
     }
 

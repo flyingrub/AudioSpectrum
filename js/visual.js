@@ -60,10 +60,10 @@ function drawFFT() {
 
     for (let i = 1; i<4; i++) {
         for (let j = 1; j < 10; j++) {
-            if (i == 1 && j == 2) {
-                continue; // Skip the first 20hz
-            }
             let freq = j * Math.pow(10, i);
+            if (freq < freqMin || freq > freqMax) {
+                continue;
+            }
             let x = xFromFreq(freq);
             ctx.fillRect(x, MARGIN_TOP, 1, 5);
             if (j == 1 || j == 5 || j == 2) {
