@@ -3,21 +3,21 @@ let MARGIN_TOP = 280;
 
 function visualInit() {
     canvas.width  = window.innerWidth;
-    canvas.height = HEIGHT;
+    canvas.height = window.innerHeight;
     ctx = canvas.getContext('2d');
     window.requestAnimationFrame(drawFFT);
 }
 
 function drawFFT() {
-    ctx.clearRect(0, 0, window.innerWidth, HEIGHT);
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     let margin = 40;
     ctx.fillStyle = 'white';
     ctx.font = '11px monospace';
     audio.detectBeat();
 
-    let freqMin = audio.sampleRate / audio.bufferLength;
-    let freqMax = audio.sampleRate / 2;
-    let freqBinStep = (freqMax-freqMin) / audio.bufferLength;
+    let freqMin = audio.freqMin;
+    let freqMax = audio.freqMax;
+    let freqBinStep = audio.freqBinStep;
 
     toLog = (i) => {
         return (freqMax * Math.log(i) / (Math.log(10) * audio.bufferLength)) + freqMin;
@@ -54,11 +54,18 @@ function drawFFT() {
         return MARGIN_TOP -audio.freq[i-1];
     }
 
-    for(let i = 1; i < audio.bufferLength; i++) {
-       //ctx.fillRect(xPosWithRatio(i), MARGIN_TOP, 1, -audio.freq[i-1]);
+    drawFreq = (timeline, offset = 0) => {
+        for(let i = 0; i < timeline.length && i < window.innerWidth - 80; i++) {
+            ctx.fillRect(40 + i, MARGIN_TOP+ (offset +1) * 100, 1, -timeline[i] / 256 * 100);
+        }
     }
 
-    for (let i = 1; i<4; i++) {
+    drawFreq(audio.bassTimeline);
+    drawFreq(audio.kickTimeline, 1);
+    drawFreq(audio.midTimeline, 2);
+    drawFreq(audio.highTimeline, 3);
+
+    for (let i = 1; i<=4; i++) {
         for (let j = 1; j < 10; j++) {
             let freq = j * Math.pow(10, i);
             if (freq < freqMin || freq > freqMax) {
@@ -88,7 +95,6 @@ function drawFFT() {
     ctx.fill();
 
     drawFreqText(freqMin);
-    drawFreqText(freqMax);
 
     window.requestAnimationFrame(drawFFT);
 }

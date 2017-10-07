@@ -13,6 +13,7 @@ window.addEventListener('dragover', (e) => {
 
 window.onresize = (ev) => {
     canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
 
 var ctx;
