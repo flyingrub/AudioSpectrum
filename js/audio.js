@@ -28,9 +28,8 @@ class Audio {
     setFFTSize(size) {
         this.analyser.fftSize = size;
         this.bufferLength = this.analyser.frequencyBinCount;
-        this.freqMin = this.sampleRate / this.bufferLength;
         this.freqMax = this.sampleRate / 2;
-        this.freqBinStep = (this.freqMax-this.freqMin) / this.bufferLength;
+        this.freqBinStep = this.freqMax / this.bufferLength;
     }
 
     load(url) {
@@ -62,13 +61,14 @@ class Audio {
     detectBeat() {
         this.freq = new Uint8Array(this.bufferLength);
         this.analyser.getByteFrequencyData(this.freq);
+        this.freq[0] = 0; //DC offset
 
         let bass = [],
             kick = [],
             mid = [],
             high = [];
         for(let i = 0; i < this.bufferLength; i++) {
-            let freq = this.freqMin + this.freqBinStep * i;
+            let freq = this.freqBinStep * i;
 
             if (freq < 100) {
                 bass.push(this.freq[i]);

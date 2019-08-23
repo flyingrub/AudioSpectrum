@@ -15,16 +15,15 @@ function drawFFT() {
     ctx.font = '11px monospace';
     audio.detectBeat();
 
-    let freqMin = audio.freqMin;
     let freqMax = audio.freqMax;
     let freqBinStep = audio.freqBinStep;
 
     toLog = (i) => {
-        return (freqMax * Math.log(i) / (Math.log(10) * audio.bufferLength)) + freqMin;
+        return (freqMax * Math.log(i) / (Math.log(10) * audio.bufferLength));
     }
 
     xPos = (i) => {
-        return freqMin * toLog(i) - freqMin * toLog(1);
+        return freqBinStep * toLog(i);
     }
 
     let xMin = margin;
@@ -33,12 +32,12 @@ function drawFFT() {
     let xRatio = (xMax - xMin) / xPos(audio.bufferLength);
 
     xPosWithRatio = (i) => {
-        return xPos(i) * xRatio - xPos(1) * xRatio + xMin;
+        return xPos(i) * xRatio + xMin;
     }
 
     xFromFreq = (freq) => {
         let offset = freq / freqBinStep;
-        let x = xPosWithRatio(offset -1);
+        let x = xPosWithRatio(offset);
         return x;
     }
 
@@ -51,7 +50,7 @@ function drawFFT() {
     }
 
     lineYFromIndex = (i) => {
-        return MARGIN_TOP -audio.freq[i-1];
+        return MARGIN_TOP - audio.freq[i];
     }
 
     drawFreq = (timeline, offset = 0) => {
@@ -97,7 +96,7 @@ function drawFFT() {
     for (let i = 1; i<=4; i++) {
         for (let j = 1; j < 10; j++) {
             let freq = j * Math.pow(10, i);
-            if (freq < freqMin || freq > freqMax) {
+            if (freq < freqBinStep || freq > freqMax) {
                 continue;
             }
             let x = xFromFreq(freq);
@@ -112,10 +111,10 @@ function drawFFT() {
     let firstX = xPosWithRatio(1);
     ctx.moveTo(firstX, MARGIN_TOP);
     ctx.lineTo(firstX, lineYFromIndex(1));
-    for (let i = 2; i < audio.bufferLength - 2; i++) {
+    for (let i = 2; i < audio.bufferLength-2; i++) {
         let x = xPosWithRatio(i);
         let y = lineYFromIndex(i);
-        let xc = (x + xPosWithRatio(i + 1)) / 2;
+        let xc = (x + xPosWithRatio(i+1)) / 2;
         let yc = (y + lineYFromIndex(i+1)) / 2;
         ctx.quadraticCurveTo(x, y, xc, yc);
     }
@@ -123,7 +122,7 @@ function drawFFT() {
     ctx.lineTo(firstX, MARGIN_TOP);
     ctx.fill();
 
-    drawFreqText(freqMin);
+    drawFreqText(freqBinStep);
 
     window.requestAnimationFrame(drawFFT);
 }
